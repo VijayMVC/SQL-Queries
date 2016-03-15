@@ -1,0 +1,23 @@
+ select sp.STAGE_SOURCE,sp.TRIALID, c.name, sp.SECTIONID,MIN(t.STARTDATE) STARTDATE, MAX(t.ENDDATE) ENDDATE,MIN(p."NAME") MIN_PERIOD,MAX(p."NAME") MAX_PERIOD, COUNT(DISTINCT p."NAME") DISTINCT_PERIODS,MAX(ps.NAME) MAX_DAY_NAME,COUNT(DISTINCT ps.NAME) DISTINCT_DAYS
+    from K12INTEL_STAGING_IC.SECTIONPLACEMENT sp
+    inner join K12INTEL_STAGING_IC.TRIAL tr
+    on sp.TRIALID = tr.TRIALID and sp.STAGE_SOURCE = tr.STAGE_SOURCE
+    inner join K12INTEL_STAGING_IC.SCHEDULESTRUCTURE ss
+    on tr.STRUCTUREID = ss.STRUCTUREID and tr.STAGE_SOURCE = ss.STAGE_SOURCE
+    inner join K12INTEL_STAGING_IC.TERMSCHEDULE ts
+    on tr.STRUCTUREID = ts.STRUCTUREID and tr.STAGE_SOURCE = ts.STAGE_SOURCE
+    inner join K12INTEL_STAGING_IC.TERM t
+    on ts.TERMSCHEDULEID = t.TERMSCHEDULEID and sp.TERMID = t.TERMID and ts.STAGE_SOURCE = t.STAGE_SOURCE
+    inner join K12INTEL_STAGING_IC.PERIODSCHEDULE ps
+    on ts.STRUCTUREID = ps.STRUCTUREID and ts.STAGE_SOURCE = ps.STAGE_SOURCE
+    inner join k12intel_staging_ic.calendar c on c.calendarid = tr.calendarid
+    inner join K12INTEL_STAGING_IC.PERIOD p
+    on ps.PERIODSCHEDULEID = p.PERIODSCHEDULEID and sp.PERIODID = p.PERIODID and ps.STAGE_SOURCE = p.STAGE_SOURCE
+    where exists(select null from K12INTEL_STAGING_IC.SECTION sec where sp.SECTIONID = sec.SECTIONID and sp.TRIALID = sec.TRIALID and sp.STAGE_SOURCE = sec.STAGE_SOURCE)
+        and tr.ACTIVE = 1
+        and sp.STAGE_SOURCE = 'MPS_IC'
+        and tr.calendarid = 3396
+    group by sp.STAGE_SOURCE,sp.TRIALID,sp.SECTIONID, c.name
+--    having COUNT(DISTINCT ps.NAME) > 2
+;
+select distinct calendarid, name from K12INTEL_STAGING_IC.calendar order by 2

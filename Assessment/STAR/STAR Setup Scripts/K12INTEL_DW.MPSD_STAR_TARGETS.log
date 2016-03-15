@@ -1,0 +1,21 @@
+﻿SQL> CREATE TABLE K12INTEL_DW.MPSD_STAR_TARGETS AS
+(
+select distinct
+    b.test_subject
+    ,case when b.test_grade_group = 'KG' then 'K5' else b.test_grade_group end as test_grade_group
+    ,w.season
+    ,w.school_year
+    ,b.min_value
+    ,'--' as target_score
+FROM k12intel_dw.DTBL_TEST_BENCHMARKS B
+inner join (select distinct season, school_year from k12intel_dw.mpsd_star_windows win) w on w.school_year = '2015-2016'
+WHERE 1=1 
+    and b.test_benchmark_type like 'STAR%'
+    and b.test_benchmark_code = '2'
+)
+Table created.
+SQL> COMMIT
+Commit complete.
+SQL> SELECT * FROM k12intel_dw.mpsd_star_targets
+no rows selected.
+SQL> SPOOL OFF
